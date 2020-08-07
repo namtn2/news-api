@@ -1,0 +1,50 @@
+#logging:
+#    file: spring_app_log_file.log
+spring:
+    data:
+        mongodb:
+            database: news
+            host: localhost
+            port: 27017
+    datasource:
+        driverClassName: com.mysql.cj.jdbc.Driver
+        password: 123456
+        tomcat:
+            max-active: 50
+            max-idle: 20
+            max-wait: 20000
+            min-idle: 15
+        url: jdbc:mysql://localhost:3306/news
+        username: root
+    freemarker:
+        suffix: .ftl
+        template-loader-path: classpath:/templates
+        checkTemplateLocation: false
+    jpa:
+        properties:
+            hibernate:
+                dialect: org.hibernate.dialect.MySQLDialect
+                format_sql: true
+                id:
+                    new_generator_mappings: false
+security:
+    oauth2:
+        client:
+            clientId: 785259876868-92a13mgl9gpe2i0knu2budtum9ov6edi.apps.googleusercontent.com
+            clientSecret: x_GleC5WyJIb5-GUmIY0Csua
+            accessTokenUri: https://www.googleapis.com/oauth2/v3/token
+            userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+            tokenName: oauth_token
+            authenticationScheme: query
+            clientAuthenticationScheme: form
+            scope: profile email
+        resource:
+            userInfoUri: https://www.googleapis.com/userinfo/v2/me
+            preferTokenInfo: false
+google:
+  captcha:
+    siteKey: 6Lfxp7sZAAAAAGMLFY8CpWZ_pl1sqBH8jxaYfv2h
+    secretKey: 6Lfxp7sZAAAAADa5_Io1L6yFW9OOvYkPmRBab52M
+    siteVerify: https://www.google.com/recaptcha/api/siteverify
+#social:
+#    auto-signup: false
