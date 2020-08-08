@@ -26,20 +26,20 @@ public class UserController {
         return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/login/{token}")
-    ResponseEntity<ResultDTO> loginGoogle(@PathVariable String token) {
+    @PostMapping("/login-google")
+    ResponseEntity<ResultDTO> loginGoogle(@RequestBody String token) {
         ResultDTO resultDTO = userService.loginGoogle(token);
         return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/register/{token}")
-    ResponseEntity<ResultDTO> registerGoogle(@PathVariable String token) {
+    @PostMapping("/register-google")
+    ResponseEntity<ResultDTO> registerGoogle(@RequestBody String token) {
         ResultDTO resultDTO = userService.registerGoogle(token);
         return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }
 
-    @GetMapping("/g-captcha/{token}")
-    ResponseEntity<ResultDTO> validateCaptcha(@PathVariable String token) {
+    @PostMapping("/g-captcha")
+    ResponseEntity<ResultDTO> validateCaptcha(@RequestBody String token) {
         ResultDTO resultDTO = userService.validateCaptcha(token);
         return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }

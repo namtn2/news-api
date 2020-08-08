@@ -58,7 +58,7 @@ public class NewsRepositoryImpl implements NewsRepository {
         try {
             resultDTO.setMessage(Constants.RESULT.SUCCESS);
             resultDTO.setKey(Constants.RESULT.SUCCESS);
-            List<News> lst = entityManager.createQuery("select t from " + News.class.getSimpleName() + " t").getResultList();
+            List<News> lst = entityManager.createQuery("select t from " + News.class.getSimpleName() + " t where t.active = 1").getResultList();
             if (lst != null && !lst.isEmpty()) {
                 resultDTO.setLst(lst);
             }

@@ -6,6 +6,8 @@ import com.api.news.demo.model.User;
 import com.api.news.demo.repository.UserRepository;
 import com.api.news.demo.utils.Constants;
 import com.api.news.demo.utils.StringUtils;
+import com.google.api.client.auth.openidconnect.IdToken;
+import com.google.api.client.auth.openidconnect.IdTokenVerifier;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -24,7 +26,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 
@@ -67,7 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public ResultDTO getUserGoogle(String idTokenString) {
-        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance())
                 .setAudience(Collections.singletonList(clientId))
                 .build();
 
@@ -78,11 +79,11 @@ public class UserServiceImpl implements UserService {
                 Payload payload = idToken.getPayload();
 
                 String email = payload.getEmail();
-                String name = (String) payload.get("name") == null ? (String) payload.get("family_name") : (String) payload.get("given_name");
+                Object name = payload.get("name") != null ? payload.get("name") : (payload.get("family_name") != null ? payload.get("family_name") : payload.get("given_name"));
 
                 User u = new User();
                 u.setEmail(email);
-                u.setName(name == null ? email : name);
+                u.setName(name == null ? email : (String) name);
                 resultDTO = userRepository.searchUser(u);
                 if (resultDTO != null && resultDTO.getObject() == null) {
                     resultDTO.setObject(u);

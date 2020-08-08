@@ -1,74 +1,59 @@
 <#macro page title>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <title>Chipo's News</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="">
-        <meta name="author" content="Tooplate">
-        <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
-        <link href="/static/css/bootstrap.css" rel="stylesheet">
-        <link rel="stylesheet" href="/static/css/fontawesome.css">
-        <link rel="stylesheet" href="/static/css/tooplate-main.css">
-        <link rel="stylesheet" href="/static/css/owl.css">
-    </head>
-    <body>
 
-    <#include "header.ftl">
+<!DOCTYPE html>
+<html lang="en">
 
-    <#nested/>
+<head>
 
-    </body>
-    </html>
-    <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="TemplateMo">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&display=swap" rel="stylesheet">
 
+    <title>Chipo's News</title>
 
-    <!-- Additional Scripts -->
-    <script src="/static/js/owl.js"></script>
-    <script src="/static/js/accordations.js"></script>
-    <script src="/static/js/main.js"></script>
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
-    <script type="text/javascript">
-        $(document).ready(function () {
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="/static/css/fontawesome.css">
+    <link rel="stylesheet" href="/static/css/templatemo-stand-blog.css">
+    <link rel="stylesheet" href="/static/css/owl.css">
+    
+</head>
 
-            // navigation click actions
-            $('.scroll-link').on('click', function (event) {
-                event.preventDefault();
-                var sectionID = $(this).attr("data-id");
-                scrollToID('#' + sectionID, 750);
-            });
-            // scroll to top action
-            $('.scroll-top').on('click', function (event) {
-                event.preventDefault();
-                $('html, body').animate({scrollTop: 0}, 'slow');
-            });
-            // mobile nav toggle
-            $('#nav-toggle').on('click', function (event) {
-                event.preventDefault();
-                $('#main-nav').toggleClass("open");
-            });
-        });
+<body>
 
-        // scroll function
-        function scrollToID(id, speed) {
-            var offSet = 0;
-            var targetOffset = $(id).offset().top - offSet;
-            var mainNav = $('#main-nav');
-            $('html,body').animate({scrollTop: targetOffset}, speed);
-            if (mainNav.hasClass("open")) {
-                mainNav.css("height", "1px").removeClass("in").addClass("collapse");
-                mainNav.removeClass("open");
-            }
+<!-- Header -->
+<#include "header.ftl">
+
+<#nested/>
+
+<#include "footer.ftl">
+
+</body>
+</html>
+
+<!-- Bootstrap core JavaScript -->
+<script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/bootstrap.bundle.min.js"></script>
+
+<!-- Additional Scripts -->
+<script src="/static/js/custom.js"></script>
+<script src="/static/js/owl.js"></script>
+<script src="/static/js/slick.js"></script>
+<script src="/static/js/isotope.js"></script>
+<script src="/static/js/accordions.js"></script>
+
+<script language = "text/Javascript">
+    cleared[0] = cleared[1] = cleared[2] = 0; //set a cleared flag for each field
+    function clearField(t){                   //declaring the array outside of the
+        if(! cleared[t.id]){                      // function makes it static and global
+            cleared[t.id] = 1;  // you could use true and false, but that's more typing
+            t.value='';         // with more chance of typos
+            t.style.color='#fff';
         }
-
-        if (typeof console === "undefined") {
-            console = {
-                log: function () {
-                }
-            };
-        }
-    </script>
+    }
+</script>
 </#macro>

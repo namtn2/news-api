@@ -53,7 +53,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
         try {
             resultDTO.setMessage(Constants.RESULT.SUCCESS);
             resultDTO.setKey(Constants.RESULT.SUCCESS);
-            List<Category> lst = entityManager.createQuery("select t from " + Category.class.getSimpleName() + " t").getResultList();
+            List<Category> lst = entityManager.createQuery("select t from " + Category.class.getSimpleName() + " t order by t.name ").getResultList();
             if (lst != null && !lst.isEmpty()) {
                 resultDTO.setLst(lst);
             }
