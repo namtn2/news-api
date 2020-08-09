@@ -2,7 +2,9 @@ package com.api.news.demo.service;
 
 import com.api.news.demo.repository.NewsRepository;
 import com.api.news.demo.dto.ResultDTO;
+import com.api.news.demo.model.LogType;
 import com.api.news.demo.model.News;
+import com.api.news.demo.utils.Constants;
 import com.api.news.demo.utils.StringUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +20,18 @@ public class NewsServiceImpl implements NewsService {
     @Autowired
     NewsRepository newsRepository;
 
+    @Autowired
+    LogService logService;
+
     @Override
     public ResultDTO createOrUpdateNews(News news) {
-        return newsRepository.createOrUpdateNews(news);
+        ResultDTO resultDTO = newsRepository.createOrUpdateNews(news);
+        if (Constants.RESULT.FAIL.equals(resultDTO.getKey())) {
+            logService.save(resultDTO, 0L, news.getId() == null ? LogType.CREATE : LogType.UPDATE);
+            return resultDTO;
+        }
+        logService.save(resultDTO, news.getId() == null ? ((News) resultDTO.getObject()).getId() : news.getId(), news.getId() == null ? LogType.CREATE : LogType.UPDATE);
+        return resultDTO;
     }
 
     @Override
@@ -38,10 +49,13 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public ResultDTO deleteNews(Long id) {
+        ResultDTO resultDTO = new ResultDTO();
         if (StringUtils.isLongNullOrZero(id)) {
             return new ResultDTO();
         }
-        return newsRepository.deleteNews(id);
+        resultDTO = newsRepository.deleteNews(id);
+        logService.save(resultDTO, id, LogType.DELETE);
+        return resultDTO;
     }
 
     @Override

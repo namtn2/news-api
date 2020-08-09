@@ -41,6 +41,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
             if (StringUtils.isLongNullOrZero(category.getId())) {
                 resultDTO.setId(categoryCreate.getId().toString());
             }
+            resultDTO.setObject(categoryCreate);
             resultDTO.setKey(Constants.RESULT.SUCCESS);
             resultDTO.setMessage(Constants.RESULT.SUCCESS);
         }
@@ -73,7 +74,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
             resultDTO.setKey(Constants.RESULT.SUCCESS);
             StringBuilder hql = new StringBuilder("select t from Category t where 1=1 ");
             if (!StringUtils.isStringNullOrEmpty(category.getName())) {
-                hql.append(" and t.name like :p_name ");
+                hql.append(" and lower(t.name) like lower(:p_name) escape '\\\\' ");
             }
             if (category.getActive() != null) {
                 hql.append(" and t.active = :p_active ");

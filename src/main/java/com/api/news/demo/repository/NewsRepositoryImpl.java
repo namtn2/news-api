@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -27,7 +28,7 @@ public class NewsRepositoryImpl implements NewsRepository {
             resultDTO.setMessage("Category name is required !");
             return resultDTO;
         }
-        
+
         if (StringUtils.isStringNullOrEmpty(news.getTitle())) {
             resultDTO.setMessage("Title is required !");
             return resultDTO;
@@ -46,10 +47,15 @@ public class NewsRepositoryImpl implements NewsRepository {
             return resultDTO;
         }
 
+        if (news.getCreateTime() == null) {
+            news.setCreateTime(new Date());
+        }
+
         News newsCreate = entityManager.merge(news);
         if (newsCreate != null && !StringUtils.isLongNullOrZero(newsCreate.getId())) {
             if (StringUtils.isLongNullOrZero(news.getId())) {
                 resultDTO.setId(newsCreate.getId().toString());
+                resultDTO.setObject(newsCreate);
             }
             resultDTO.setKey(Constants.RESULT.SUCCESS);
             resultDTO.setMessage(Constants.RESULT.SUCCESS);
@@ -83,7 +89,7 @@ public class NewsRepositoryImpl implements NewsRepository {
             resultDTO.setKey(Constants.RESULT.SUCCESS);
             StringBuilder hql = new StringBuilder("select t.* from News t join Category c on t.category_id = c.id and c.active = 1 where 1=1 ");
             if (!StringUtils.isStringNullOrEmpty(news.getTitle())) {
-                hql.append(" and t.title like :p_title ");
+                hql.append(" and lower(t.title) like lower(:p_title) escape '\\\\' ");
             }
             if (news.getActive() != null) {
                 hql.append(" and t.active = :p_active ");
@@ -95,7 +101,7 @@ public class NewsRepositoryImpl implements NewsRepository {
             if (news.getId() != null) {
                 hql.append(" and t.id <> :p_id ");
             }
-            hql.append(" order by t.title ");
+            hql.append(" order by t.create_time desc, t.title ");
 
             Query query = entityManager.createNativeQuery(hql.toString(), News.class);
             if (!StringUtils.isStringNullOrEmpty(news.getTitle())) {

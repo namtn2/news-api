@@ -6,8 +6,6 @@ import com.api.news.demo.model.User;
 import com.api.news.demo.repository.UserRepository;
 import com.api.news.demo.utils.Constants;
 import com.api.news.demo.utils.StringUtils;
-import com.google.api.client.auth.openidconnect.IdToken;
-import com.google.api.client.auth.openidconnect.IdTokenVerifier;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
@@ -63,7 +61,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResultDTO createOrUpdateUser(User user) {
         ResultDTO resultDTO = userRepository.createOrUpdateUser(user);
-        logService.save(resultDTO, ((User) resultDTO.getObject()).getId(), LogType.LOGIN);
+        if (Constants.RESULT.FAIL.equals(resultDTO.getKey())) {
+            logService.save(resultDTO, 0L, user.getId() == null ? LogType.REGISTER : LogType.LOGIN);
+            return resultDTO;
+        }
+        logService.save(resultDTO, ((User) resultDTO.getObject()).getId(), user.getId() == null ? LogType.REGISTER : LogType.LOGIN);
         return resultDTO;
     }
 
@@ -111,7 +113,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResultDTO registerGoogle(String token) {
-        return getUserGoogle(token);
+        ResultDTO resultDTO = getUserGoogle(token);
+        logService.save(resultDTO, ((User) resultDTO.getObject()).getId(), LogType.REGISTER_WITH_GOOGLE);
+        return resultDTO;
     }
 
     @Override

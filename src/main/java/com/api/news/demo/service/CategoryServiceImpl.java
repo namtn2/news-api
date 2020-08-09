@@ -3,6 +3,8 @@ package com.api.news.demo.service;
 import com.api.news.demo.repository.CategoryRepository;
 import com.api.news.demo.dto.ResultDTO;
 import com.api.news.demo.model.Category;
+import com.api.news.demo.model.LogType;
+import com.api.news.demo.model.User;
 import com.api.news.demo.repository.NewsRepository;
 import com.api.news.demo.utils.Constants;
 import com.api.news.demo.utils.StringUtils;
@@ -23,9 +25,18 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     NewsRepository newsRepository;
 
+    @Autowired
+    LogService logService;
+
     @Override
     public ResultDTO createOrUpdateCategory(Category category) {
-        return categoryRepository.createOrUpdateCategory(category);
+        ResultDTO resultDTO = categoryRepository.createOrUpdateCategory(category);
+        if (Constants.RESULT.FAIL.equals(resultDTO.getKey())) {
+            logService.save(resultDTO, 0L, category.getId() == null ? LogType.CREATE : LogType.UPDATE);
+            return resultDTO;
+        }
+        logService.save(resultDTO, category.getId() == null ? ((Category) resultDTO.getObject()).getId() : category.getId(), category.getId() == null ? LogType.CREATE : LogType.UPDATE);
+        return resultDTO;
     }
 
     @Override
@@ -53,6 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
             resultDTO.setMessage("This category is already have news, can not delete this category !");
             return resultDTO;
         }
+        logService.save(resultDTO, id, LogType.DELETE);
         return categoryRepository.deleteCategory(id);
     }
 

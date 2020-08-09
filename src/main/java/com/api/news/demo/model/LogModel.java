@@ -17,9 +17,10 @@ public class LogModel {
 
     @Id
     private String id;
+    
     private Object content;
     private long createTime;
-    private long userId;
+    private long idRecord;
     private LogType logType;
 
 }

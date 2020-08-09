@@ -11,6 +11,8 @@ public class StringUtils {
     }
 
     public static String escapeStringSQL(String s){
-        return s.toLowerCase().replaceAll("%", "\\%").replaceAll("_","\\_");
+        return s.toLowerCase().trim()
+                .replaceAll("%", "\\\\%")
+                .replaceAll("_","\\\\_");
     }
 }

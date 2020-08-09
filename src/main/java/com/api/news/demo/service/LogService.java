@@ -13,12 +13,12 @@ public class LogService {
     @Autowired
     MongoExtendRepository mongoExtendRepository;
 
-    public void save(ResultDTO resultDTO, Long userId, LogType logType) {
+    public void save(ResultDTO resultDTO, Long id, LogType logType) {
         try {
             LogModel logModel = new LogModel();
             logModel.setContent(resultDTO);
             logModel.setCreateTime(System.currentTimeMillis());
-            logModel.setUserId(userId);
+            logModel.setIdRecord(id);
             logModel.setLogType(logType);
             mongoExtendRepository.save(logModel);
         } catch (Exception e) {

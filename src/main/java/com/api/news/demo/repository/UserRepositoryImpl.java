@@ -6,15 +6,14 @@ import com.api.news.demo.model.User;
 import com.api.news.demo.utils.StringUtils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.social.connect.Connection;
-//import org.springframework.social.connect.UserProfile;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.xml.transform.Result;
 import java.util.Date;
 import java.util.List;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Repository
 @Log4j
@@ -23,16 +22,26 @@ public class UserRepositoryImpl implements UserRepository {
     @Autowired
     EntityManager entityManager;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public ResultDTO login(User user) {
         ResultDTO resultDTO = new ResultDTO();
         try {
-            List<User> lst = entityManager.createQuery("select t from " + User.class.getSimpleName() + " t WHERE t.email = :p_email and t.password = :p_password")
+            List<User> lst = entityManager.createQuery("select t from " + User.class.getSimpleName() + " t WHERE t.email = :p_email")
                     .setParameter("p_email", user.getEmail())
-                    .setParameter("p_password", user.getPassword())
                     .getResultList();
             if (lst != null && !lst.isEmpty()) {
-                resultDTO.setObject(lst.get(0));
+                User u = lst.get(0);
+                if (!StringUtils.isStringNullOrEmpty(user.getPassword())) {
+                    if (!passwordEncoder.matches(user.getPassword(), u.getPassword())) {
+                        resultDTO.setMessage("Login failed, please check your email or password");
+                        return resultDTO;
+                    }
+                }
+
+                resultDTO.setObject(u);
                 resultDTO.setMessage(Constants.RESULT.SUCCESS);
                 resultDTO.setKey(Constants.RESULT.SUCCESS);
             } else {
@@ -57,6 +66,9 @@ public class UserRepositoryImpl implements UserRepository {
         }
         if (user.getId() == null) {
             user.setCreateTime(new Date());
+            if (!StringUtils.isStringNullOrEmpty(user.getPassword())) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
         }
 
         User userCreate = entityManager.merge(user);
@@ -136,28 +148,4 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return resultDTO;
     }
-
-//    @Override
-//    public User createUserSocial(Connection<?> connection) {
-//        UserProfile userProfile = connection.fetchUserProfile();
-//        String email = userProfile.getEmail();
-//
-//        User u = new User();
-//        u.setEmail(email);
-//        ResultDTO resultDTO = searchUser(u);
-//        if (resultDTO != null && resultDTO.getObject() != null) {
-//            return (User) resultDTO.getObject();
-//        }
-//        String userName = userProfile.getFirstName().trim()
-//                + " " + userProfile.getLastName().trim();
-//
-//        String password = "12345678";
-//        u.setName(userName);
-//        u.setEmail(email.toLowerCase());
-//        u.setPassword(password);
-//        u.setCreateTime(new Date());
-//        entityManager.persist(u);
-//
-//        return u;
-//    }
 }
