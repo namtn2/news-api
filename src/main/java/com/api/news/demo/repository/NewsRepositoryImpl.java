@@ -23,6 +23,11 @@ public class NewsRepositoryImpl implements NewsRepository {
     public ResultDTO createOrUpdateNews(News news) {
         ResultDTO resultDTO = new ResultDTO();
 
+        if (StringUtils.isLongNullOrZero(news.getCategoryId())) {
+            resultDTO.setMessage("Category name is required !");
+            return resultDTO;
+        }
+        
         if (StringUtils.isStringNullOrEmpty(news.getTitle())) {
             resultDTO.setMessage("Title is required !");
             return resultDTO;
