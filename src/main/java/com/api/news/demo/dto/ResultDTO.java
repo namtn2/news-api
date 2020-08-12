@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class ResultDTO {
+
     private String key;
     private String message;
     private String id;
@@ -20,5 +21,14 @@ public class ResultDTO {
     public ResultDTO() {
         this.key = Constants.RESULT.FAIL;
         this.message = Constants.RESULT.FAIL;
+    }
+
+    public ResultDTO(String key, String message) {
+        this.key = key;
+        this.message = message;
+    }
+
+    public ResultDTO setResultDtoSuccess() {
+        return new ResultDTO(Constants.RESULT.SUCCESS, Constants.RESULT.SUCCESS);
     }
 }

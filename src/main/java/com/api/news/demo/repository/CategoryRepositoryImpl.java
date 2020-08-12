@@ -3,7 +3,7 @@ package com.api.news.demo.repository;
 import com.api.news.demo.dto.ResultDTO;
 import com.api.news.demo.model.Category;
 import com.api.news.demo.utils.Constants;
-import com.api.news.demo.utils.StringUtils;
+import com.api.news.demo.utils.Utils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -23,7 +23,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     public ResultDTO createOrUpdateCategory(Category category) {
         ResultDTO resultDTO = new ResultDTO();
 
-        if (StringUtils.isStringNullOrEmpty(category.getName())) {
+        if (Utils.isStringNullOrEmpty(category.getName())) {
             resultDTO.setMessage("Category name is required !");
             return resultDTO;
         }
@@ -37,8 +37,8 @@ public class CategoryRepositoryImpl implements CategoryRepository {
         }
 
         Category categoryCreate = entityManager.merge(category);
-        if (categoryCreate != null && !StringUtils.isLongNullOrZero(categoryCreate.getId())) {
-            if (StringUtils.isLongNullOrZero(category.getId())) {
+        if (categoryCreate != null && !Utils.isLongNullOrZero(categoryCreate.getId())) {
+            if (Utils.isLongNullOrZero(category.getId())) {
                 resultDTO.setId(categoryCreate.getId().toString());
             }
             resultDTO.setObject(categoryCreate);
@@ -73,7 +73,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
             resultDTO.setMessage(Constants.RESULT.SUCCESS);
             resultDTO.setKey(Constants.RESULT.SUCCESS);
             StringBuilder hql = new StringBuilder("select t from Category t where 1=1 ");
-            if (!StringUtils.isStringNullOrEmpty(category.getName())) {
+            if (!Utils.isStringNullOrEmpty(category.getName())) {
                 hql.append(" and lower(t.name) like lower(:p_name) escape '\\\\' ");
             }
             if (category.getActive() != null) {
@@ -86,8 +86,8 @@ public class CategoryRepositoryImpl implements CategoryRepository {
             hql.append(" order by t.name ");
 
             Query query = entityManager.createQuery(hql.toString());
-            if (!StringUtils.isStringNullOrEmpty(category.getName())) {
-                query.setParameter("p_name", "%" + StringUtils.escapeStringSQL(category.getName()) + "%");
+            if (!Utils.isStringNullOrEmpty(category.getName())) {
+                query.setParameter("p_name", "%" + Utils.escapeStringSQL(category.getName()) + "%");
             }
             if (category.getActive() != null) {
                 query.setParameter("p_active", category.getActive());

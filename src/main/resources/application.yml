@@ -46,5 +46,13 @@ google:
     siteKey: 6Lfxp7sZAAAAAGMLFY8CpWZ_pl1sqBH8jxaYfv2h
     secretKey: 6Lfxp7sZAAAAADa5_Io1L6yFW9OOvYkPmRBab52M
     siteVerify: https://www.google.com/recaptcha/api/siteverify
-#social:
-#    auto-signup: false
+jwt:
+    secret: secret-news
+    expireTime:
+        # 1 minute: 1000*60
+        token: 60000
+        # 25 hours: 1000*60*60*25
+        refreshToken: 90000000
+log-manage:
+    order:
+        field: createTime

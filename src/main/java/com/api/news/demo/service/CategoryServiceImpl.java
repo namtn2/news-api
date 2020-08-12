@@ -7,7 +7,7 @@ import com.api.news.demo.model.LogType;
 import com.api.news.demo.model.User;
 import com.api.news.demo.repository.NewsRepository;
 import com.api.news.demo.utils.Constants;
-import com.api.news.demo.utils.StringUtils;
+import com.api.news.demo.utils.Utils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,10 +32,10 @@ public class CategoryServiceImpl implements CategoryService {
     public ResultDTO createOrUpdateCategory(Category category) {
         ResultDTO resultDTO = categoryRepository.createOrUpdateCategory(category);
         if (Constants.RESULT.FAIL.equals(resultDTO.getKey())) {
-            logService.save(resultDTO, 0L, category.getId() == null ? LogType.CREATE : LogType.UPDATE);
+//            logService.save(resultDTO, 0L, category.getId() == null ? LogType.CREATE : LogType.UPDATE);
             return resultDTO;
         }
-        logService.save(resultDTO, category.getId() == null ? ((Category) resultDTO.getObject()).getId() : category.getId(), category.getId() == null ? LogType.CREATE : LogType.UPDATE);
+//        logService.save(resultDTO, category.getId() == null ? ((Category) resultDTO.getObject()).getId() : category.getId(), category.getId() == null ? LogType.CREATE : LogType.UPDATE);
         return resultDTO;
     }
 
@@ -46,7 +46,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public ResultDTO findCategoryById(Long id) {
-        if (StringUtils.isLongNullOrZero(id)) {
+        if (Utils.isLongNullOrZero(id)) {
             return new ResultDTO();
         }
         return categoryRepository.findCategoryById(id);
@@ -55,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ResultDTO deleteCategory(Long id) {
         ResultDTO resultDTO = new ResultDTO();
-        if (StringUtils.isLongNullOrZero(id)) {
+        if (Utils.isLongNullOrZero(id)) {
             return resultDTO;
         }
         //check category da co news hay chua
@@ -64,7 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
             resultDTO.setMessage("This category is already have news, can not delete this category !");
             return resultDTO;
         }
-        logService.save(resultDTO, id, LogType.DELETE);
+//        logService.save(resultDTO, id, LogType.DELETE);
         return categoryRepository.deleteCategory(id);
     }
 

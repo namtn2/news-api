@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserService {
 
-    ResultDTO login(User user);
+//    ResultDTO login(User user);
 
     ResultDTO createOrUpdateUser(User user);
 
@@ -17,5 +17,7 @@ public interface UserService {
 
     ResultDTO validateCaptcha(String token);
 
-    ResultDTO findUserById(Long id);
+//    ResultDTO findUserById(Long id);
+    
+    ResultDTO searchUser(User user);
 }

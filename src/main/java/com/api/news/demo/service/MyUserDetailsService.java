@@ -25,7 +25,7 @@ public class MyUserDetailsService implements UserDetailsService {
         ResultDTO resultDTO = userRepository.searchUser(uSearch);
         if (Constants.RESULT.SUCCESS.equals(resultDTO.getKey()) && resultDTO.getObject() != null) {
             com.api.news.demo.model.User u = (com.api.news.demo.model.User) resultDTO.getObject();
-            return new User(u.getEmail(), u.getPassword(), new ArrayList<>());
+            return new User(u.getEmail(), u.getPassword() == null ? "" : u.getPassword(), new ArrayList<>());
         }
         return null;
     }

@@ -3,13 +3,14 @@ package com.api.news.demo.repository;
 import com.api.news.demo.dto.ResultDTO;
 import com.api.news.demo.utils.Constants;
 import com.api.news.demo.model.User;
-import com.api.news.demo.utils.StringUtils;
+import com.api.news.demo.utils.Utils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,36 +26,35 @@ public class UserRepositoryImpl implements UserRepository {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Override
-    public ResultDTO login(User user) {
-        ResultDTO resultDTO = new ResultDTO();
-        try {
-            List<User> lst = entityManager.createQuery("select t from " + User.class.getSimpleName() + " t WHERE t.email = :p_email")
-                    .setParameter("p_email", user.getEmail())
-                    .getResultList();
-            if (lst != null && !lst.isEmpty()) {
-                User u = lst.get(0);
-                if (!StringUtils.isStringNullOrEmpty(user.getPassword())) {
-                    if (!passwordEncoder.matches(user.getPassword(), u.getPassword())) {
-                        resultDTO.setMessage("Login failed, please check your email or password");
-                        return resultDTO;
-                    }
-                }
-
-                resultDTO.setObject(u);
-                resultDTO.setMessage(Constants.RESULT.SUCCESS);
-                resultDTO.setKey(Constants.RESULT.SUCCESS);
-            } else {
-                resultDTO.setMessage("Login failed, please check your email or password");
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            resultDTO.setMessage(e.getCause().getMessage());
-            resultDTO.setKey(Constants.RESULT.ERROR);
-        }
-        return resultDTO;
-    }
-
+//    @Override
+//    public ResultDTO login(User user) {
+//        ResultDTO resultDTO = new ResultDTO();
+//        try {
+//            List<User> lst = entityManager.createQuery("select t from " + User.class.getSimpleName() + " t WHERE t.email = :p_email")
+//                    .setParameter("p_email", user.getEmail())
+//                    .getResultList();
+//            if (lst != null && !lst.isEmpty()) {
+//                User u = lst.get(0);
+//                if (!Utils.isStringNullOrEmpty(user.getPassword())) {
+//                    if (!passwordEncoder.matches(user.getPassword(), u.getPassword())) {
+//                        resultDTO.setMessage("Login failed, please check your email or password");
+//                        return resultDTO;
+//                    }
+//                }
+//
+//                resultDTO.setObject(u);
+//                resultDTO.setMessage(Constants.RESULT.SUCCESS);
+//                resultDTO.setKey(Constants.RESULT.SUCCESS);
+//            } else {
+//                resultDTO.setMessage("Login failed, please check your email or password");
+//            }
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
+//            resultDTO.setMessage(e.getCause().getMessage());
+//            resultDTO.setKey(Constants.RESULT.ERROR);
+//        }
+//        return resultDTO;
+//    }
     @Override
     public ResultDTO createOrUpdateUser(User user) {
         ResultDTO resultDTO = new ResultDTO();
@@ -66,15 +66,15 @@ public class UserRepositoryImpl implements UserRepository {
         }
         if (user.getId() == null) {
             user.setCreateTime(new Date());
-            if (!StringUtils.isStringNullOrEmpty(user.getPassword())) {
+            if (!Utils.isStringNullOrEmpty(user.getPassword())) {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
             }
         }
 
         User userCreate = entityManager.merge(user);
-        if (userCreate != null && !StringUtils.isLongNullOrZero(userCreate.getId())) {
+        if (userCreate != null && !Utils.isLongNullOrZero(userCreate.getId())) {
             resultDTO.setObject(userCreate);
-            if (StringUtils.isLongNullOrZero(user.getId())) {
+            if (Utils.isLongNullOrZero(user.getId())) {
                 resultDTO.setId(userCreate.getId().toString());
             }
             resultDTO.setKey(Constants.RESULT.SUCCESS);
@@ -91,12 +91,12 @@ public class UserRepositoryImpl implements UserRepository {
             resultDTO.setKey(Constants.RESULT.SUCCESS);
             StringBuilder hql = new StringBuilder("select t.* from User t where 1=1");
 
-            if (!StringUtils.isStringNullOrEmpty(user.getEmail())) {
+            if (!Utils.isStringNullOrEmpty(user.getEmail())) {
                 hql.append(" and lower(t.email) = lower(:p_email) ");
             }
 
             Query query = entityManager.createNativeQuery(hql.toString(), User.class);
-            if (!StringUtils.isStringNullOrEmpty(user.getEmail())) {
+            if (!Utils.isStringNullOrEmpty(user.getEmail())) {
                 query.setParameter("p_email", user.getEmail());
             }
 
@@ -132,14 +132,15 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public ResultDTO findUserById(Long id) {
+    public ResultDTO findUserById(List<Long> id) {
         ResultDTO resultDTO = new ResultDTO();
         try {
+            Query createQuery = entityManager.createQuery("SELECT u FROM User u WHERE id in (:id)", User.class).setParameter("id", id);
+            List<User> resultList = createQuery.getResultList();
             resultDTO.setMessage(Constants.RESULT.SUCCESS);
             resultDTO.setKey(Constants.RESULT.SUCCESS);
-            User s = entityManager.find(User.class, id);
-            if (s != null) {
-                resultDTO.setObject(s);
+            if (resultList != null && !resultList.isEmpty()) {
+                resultDTO.setLst(resultList);
             }
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -147,5 +148,26 @@ public class UserRepositoryImpl implements UserRepository {
             resultDTO.setKey(Constants.RESULT.ERROR);
         }
         return resultDTO;
+    }
+
+    @Override
+    public List<User> searchUserByNameAndEmail(User user) {
+        try {
+            StringBuilder hql = new StringBuilder("select t.* from User t where 1=1 ");
+            if (!Utils.isStringNullOrEmpty(user.getEmail())) {
+                hql.append(" and ( lower(t.email) like lower(:p_email) escape '\\\\'  or lower(t.name) like lower(:p_name) escape '\\\\' ) ");
+            }
+
+            Query query = entityManager.createNativeQuery(hql.toString(), User.class);
+            if (!Utils.isStringNullOrEmpty(user.getEmail())) {
+                query.setParameter("p_email", "%" + Utils.escapeStringSQL(user.getEmail()) + "%");
+                query.setParameter("p_name", "%" + Utils.escapeStringSQL(user.getEmail()) + "%");
+            }
+
+            return query.getResultList();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return new ArrayList<>();
     }
 }

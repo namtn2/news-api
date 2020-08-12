@@ -3,7 +3,7 @@ package com.api.news.demo.repository;
 import com.api.news.demo.dto.ResultDTO;
 import com.api.news.demo.model.News;
 import com.api.news.demo.utils.Constants;
-import com.api.news.demo.utils.StringUtils;
+import com.api.news.demo.utils.Utils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -24,17 +24,17 @@ public class NewsRepositoryImpl implements NewsRepository {
     public ResultDTO createOrUpdateNews(News news) {
         ResultDTO resultDTO = new ResultDTO();
 
-        if (StringUtils.isLongNullOrZero(news.getCategoryId())) {
+        if (Utils.isLongNullOrZero(news.getCategoryId())) {
             resultDTO.setMessage("Category name is required !");
             return resultDTO;
         }
 
-        if (StringUtils.isStringNullOrEmpty(news.getTitle())) {
+        if (Utils.isStringNullOrEmpty(news.getTitle())) {
             resultDTO.setMessage("Title is required !");
             return resultDTO;
         }
 
-        if (StringUtils.isStringNullOrEmpty(news.getContent())) {
+        if (Utils.isStringNullOrEmpty(news.getContent())) {
             resultDTO.setMessage("Content is required !");
             return resultDTO;
         }
@@ -52,8 +52,8 @@ public class NewsRepositoryImpl implements NewsRepository {
         }
 
         News newsCreate = entityManager.merge(news);
-        if (newsCreate != null && !StringUtils.isLongNullOrZero(newsCreate.getId())) {
-            if (StringUtils.isLongNullOrZero(news.getId())) {
+        if (newsCreate != null && !Utils.isLongNullOrZero(newsCreate.getId())) {
+            if (Utils.isLongNullOrZero(news.getId())) {
                 resultDTO.setId(newsCreate.getId().toString());
                 resultDTO.setObject(newsCreate);
             }
@@ -88,7 +88,7 @@ public class NewsRepositoryImpl implements NewsRepository {
             resultDTO.setMessage(Constants.RESULT.SUCCESS);
             resultDTO.setKey(Constants.RESULT.SUCCESS);
             StringBuilder hql = new StringBuilder("select t.* from News t join Category c on t.category_id = c.id and c.active = 1 where 1=1 ");
-            if (!StringUtils.isStringNullOrEmpty(news.getTitle())) {
+            if (!Utils.isStringNullOrEmpty(news.getTitle())) {
                 hql.append(" and lower(t.title) like lower(:p_title) escape '\\\\' ");
             }
             if (news.getActive() != null) {
@@ -104,8 +104,8 @@ public class NewsRepositoryImpl implements NewsRepository {
             hql.append(" order by t.create_time desc, t.title ");
 
             Query query = entityManager.createNativeQuery(hql.toString(), News.class);
-            if (!StringUtils.isStringNullOrEmpty(news.getTitle())) {
-                query.setParameter("p_title", "%" + StringUtils.escapeStringSQL(news.getTitle()) + "%");
+            if (!Utils.isStringNullOrEmpty(news.getTitle())) {
+                query.setParameter("p_title", "%" + Utils.escapeStringSQL(news.getTitle()) + "%");
             }
             if (news.getActive() != null) {
                 query.setParameter("p_active", news.getActive());

@@ -35,13 +35,22 @@ public class User {
 
     @Column(name = "PASSWORD")
     private String password;
+    
+    @Transient
+    private boolean rememberMe;
+    
+    @Transient
+    private String token;
+    
+    @Transient
+    private String refreshToken;
 
-//    @Override
-//    public User clone() {
-//        try {
-//            return (User) super.clone();
-//        } catch (Exception e) {
-//            return null;
-//        }
-//    }
+    public User(String email, String jwt) {
+        this.email = email;
+        this.token = jwt;
+    }
+
+    public User(String email) {
+        this.email = email;
+    }
 }

@@ -5,7 +5,7 @@ import com.api.news.demo.dto.ResultDTO;
 import com.api.news.demo.model.LogType;
 import com.api.news.demo.model.News;
 import com.api.news.demo.utils.Constants;
-import com.api.news.demo.utils.StringUtils;
+import com.api.news.demo.utils.Utils;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,10 +27,10 @@ public class NewsServiceImpl implements NewsService {
     public ResultDTO createOrUpdateNews(News news) {
         ResultDTO resultDTO = newsRepository.createOrUpdateNews(news);
         if (Constants.RESULT.FAIL.equals(resultDTO.getKey())) {
-            logService.save(resultDTO, 0L, news.getId() == null ? LogType.CREATE : LogType.UPDATE);
+//            logService.save(resultDTO, 0L, news.getId() == null ? LogType.CREATE : LogType.UPDATE);
             return resultDTO;
         }
-        logService.save(resultDTO, news.getId() == null ? ((News) resultDTO.getObject()).getId() : news.getId(), news.getId() == null ? LogType.CREATE : LogType.UPDATE);
+//        logService.save(resultDTO, news.getId() == null ? ((News) resultDTO.getObject()).getId() : news.getId(), news.getId() == null ? LogType.CREATE : LogType.UPDATE);
         return resultDTO;
     }
 
@@ -41,7 +41,7 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public ResultDTO findNewsById(Long id) {
-        if (StringUtils.isLongNullOrZero(id)) {
+        if (Utils.isLongNullOrZero(id)) {
             return new ResultDTO();
         }
         return newsRepository.findNewsById(id);
@@ -50,11 +50,11 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public ResultDTO deleteNews(Long id) {
         ResultDTO resultDTO = new ResultDTO();
-        if (StringUtils.isLongNullOrZero(id)) {
+        if (Utils.isLongNullOrZero(id)) {
             return new ResultDTO();
         }
         resultDTO = newsRepository.deleteNews(id);
-        logService.save(resultDTO, id, LogType.DELETE);
+//        logService.save(resultDTO, id, LogType.DELETE);
         return resultDTO;
     }
 
