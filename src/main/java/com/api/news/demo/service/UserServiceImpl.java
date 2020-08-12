@@ -46,25 +46,10 @@ public class UserServiceImpl implements UserService {
 
     @Value("${google.captcha.secretKey:null}")
     private String secretKey;
-
-//    @Override
-//    public ResultDTO login(User user) {
-//        ResultDTO resultDTO = userRepository.login(user);
-//        if (Constants.RESULT.FAIL.equals(resultDTO.getKey())) {
-//            logService.save(resultDTO, 0L, LogType.LOGIN);
-//            return resultDTO;
-//        }
-//        logService.save((User) resultDTO.getObject(), ((User) resultDTO.getObject()).getId(), LogType.LOGIN);
-//        return resultDTO;
-//    }
+    
     @Override
     public ResultDTO createOrUpdateUser(User user) {
         ResultDTO resultDTO = userRepository.createOrUpdateUser(user);
-//        if (Constants.RESULT.FAIL.equals(resultDTO.getKey())) {
-//            logService.save(resultDTO, 0L, user.getId() == null ? LogType.REGISTER : LogType.LOGIN, resultDTO.getKey());
-//            return resultDTO;
-//        }
-//        logService.save((User) resultDTO.getObject(), ((User) resultDTO.getObject()).getId(), user.getId() == null ? LogType.REGISTER : LogType.LOGIN);
         return resultDTO;
     }
 
@@ -106,24 +91,14 @@ public class UserServiceImpl implements UserService {
             return resultDTO;
         }
         resultDTO = userRepository.createOrUpdateUser((User) resultDTO.getObject());
-//        logService.save((User) resultDTO.getObject(), ((User) resultDTO.getObject()).getId(), LogType.LOGIN_WITH_GOOGLE);
         return resultDTO;
     }
 
     @Override
     public ResultDTO registerGoogle(String token) {
         ResultDTO resultDTO = getUserGoogle(token);
-//        logService.save(resultDTO, ((User) resultDTO.getObject()).getId(), LogType.REGISTER_WITH_GOOGLE);
         return resultDTO;
     }
-
-//    @Override
-//    public ResultDTO findUserById(Long id) {
-//        if (Utils.isLongNullOrZero(id)) {
-//            return new ResultDTO();
-//        }
-//        return userRepository.findUserById(id);
-//    }
 
     @Override
     public ResultDTO validateCaptcha(String token) {

@@ -8,7 +8,9 @@ import com.api.news.demo.repository.MongoExtendRepository;
 import com.api.news.demo.repository.UserRepository;
 import com.api.news.demo.utils.Constants;
 import com.api.news.demo.utils.Utils;
+
 import java.util.ArrayList;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -91,7 +94,7 @@ public class LogService {
 
             Map<Long, List<LogModel>> collect = (Map<Long, List<LogModel>>) lst.stream().collect(Collectors.groupingBy(LogModel::getUserId, Collectors.toList()));
             ResultDTO res = userRepository.findUserById(new ArrayList<>(collect.keySet()));
-            if (res != null && !res.getLst().isEmpty()) {
+            if (res != null && (res.getLst() != null && !res.getLst().isEmpty()) ) {
                 List<User> lstUser = (List<User>) res.getLst();
                 for (User u : lstUser) {
                     List<LogModel> lstValues = collect.get(u.getId());
@@ -120,17 +123,21 @@ public class LogService {
             u.setEmail(logModel.getEmail());
             List<User> lstUser = userRepository.searchUserByNameAndEmail(u);
             List<Long> lstUserId = lstUser.stream().map(User::getId).collect(Collectors.toList());
-            query.addCriteria(c.and("userId").in(lstUserId));
+            c.and("userId").in(lstUserId);
         }
         if (!Utils.isStringNullOrEmpty(logModel.getStatus())) {
-            query.addCriteria(c.and("status").is(logModel.getStatus()));
+            c.and("status").is(logModel.getStatus());
         }
         if (logModel.getLogType() != null) {
-            query.addCriteria(c.and("logType").is(logModel.getLogType()));
+            c.and("logType").is(logModel.getLogType());
         }
         if (!Utils.isStringNullOrEmpty(logModel.getMessage())) {
-            query.addCriteria(c.and("message").regex(".*" + logModel.getMessage() + ".*", "i"));
+            c.and("message").regex(".*" + logModel.getMessage() + ".*", "i");
         }
+        if (!Utils.isLongNullOrZero(logModel.getCreateTimeFrom()) && !Utils.isLongNullOrZero(logModel.getCreateTimeTo())) {
+            c.and("createTime").gte(logModel.getCreateTimeFrom()).lte(logModel.getCreateTimeTo());
+        }
+        query.addCriteria(c);
         return query;
     }
 

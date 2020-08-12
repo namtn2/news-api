@@ -56,3 +56,6 @@ jwt:
 log-manage:
     order:
         field: createTime
+user:
+    default:
+        password: 12345678

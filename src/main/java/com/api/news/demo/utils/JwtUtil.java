@@ -26,10 +26,10 @@ public class JwtUtil {
     @Value("${jwt.expireTime.refreshToken:null}")
     private Long expireTimeRefresh;
 
-    public String generateToken(UserDetails userDetails, Long time) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername(), time == null ? expireTime : time);
-    }
+//    public String generateToken(UserDetails userDetails, Long time) {
+//        Map<String, Object> claims = new HashMap<>();
+//        return createToken(claims, userDetails.getUsername(), time == null ? expireTime : time);
+//    }
 
     public String generateToken(String userName, Long time) {
         Map<String, Object> claims = new HashMap<>();

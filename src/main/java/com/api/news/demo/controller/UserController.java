@@ -10,11 +10,12 @@ import com.api.news.demo.service.UserService;
 import com.api.news.demo.utils.Constants;
 import com.api.news.demo.utils.JwtUtil;
 import com.api.news.demo.utils.Utils;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Controller
@@ -49,20 +51,25 @@ public class UserController {
     @PostMapping("/login")
     ResponseEntity<ResultDTO> login(@RequestBody User user) {
         ResultDTO resultDTO = new ResultDTO();
+        Authentication authenticate = null;
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
-            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-
+            authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+        } catch (Exception e) {
+            resultDTO.setMessage("Login failed. Please check your email/password");
+        }
+        
+        User u = null;
+        if (authenticate != null) {
             Long time = null;
             if (user.isRememberMe()) {
                 time = 1000 * 60 * 60 * 12l;
             }
 
-            String jwt = jwtUtil.generateToken(userDetails, time);
-            String refreshToken = jwtUtil.createRefreshToken(userDetails.getUsername());
+            String jwt = jwtUtil.generateToken(user.getEmail(), time);
+            String refreshToken = jwtUtil.createRefreshToken(user.getEmail());
 
             ResultDTO searchUser = userService.searchUser(user);
-            User u = (User) searchUser.getObject();
+            u = (User) searchUser.getObject();
             u.setRememberMe(user.isRememberMe());
             u.setToken(jwt);
             u.setRefreshToken(refreshToken);
@@ -70,11 +77,9 @@ public class UserController {
             resultDTO.setKey(Constants.RESULT.SUCCESS);
             resultDTO.setMessage(Constants.RESULT.SUCCESS);
             resultDTO.setObject(u);
-
-            logService.save(u, u.getId(), LogType.LOGIN, resultDTO);
-        } catch (Exception e) {
-            resultDTO.setMessage(e.getMessage());
         }
+        
+        logService.save(u, u == null ? 0l : (u.getId() == null ? 0l : u.getId()), LogType.LOGIN, resultDTO);
         return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }
 
@@ -138,7 +143,8 @@ public class UserController {
     @PostMapping("/create")
     ResponseEntity<ResultDTO> create(@RequestBody User user) {
         ResultDTO resultDTO = userService.createOrUpdateUser(user);
-        logService.save((User) resultDTO.getObject(), LogType.REGISTER, resultDTO);
+        User u = (User) resultDTO.getObject();
+        logService.save(u, u.getId(), LogType.REGISTER, resultDTO);
         return new ResponseEntity<>(resultDTO, HttpStatus.OK);
     }
 

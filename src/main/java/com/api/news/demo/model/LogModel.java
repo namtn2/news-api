@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.Transient;
 import org.springframework.data.annotation.PersistenceConstructor;
 
+import java.util.Date;
+
 @Document(collection = "log")
 @Getter
 @Setter
@@ -31,6 +33,10 @@ public class LogModel {
     private String email;
     @Transient
     private String name;
+    @Transient
+    private long createTimeFrom;
+    @Transient
+    private long createTimeTo;
 
     @PersistenceConstructor
     public LogModel(String id, Object content, long createTime, long userId, LogType logType, String status, String message) {
